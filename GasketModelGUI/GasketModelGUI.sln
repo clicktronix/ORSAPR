@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GasketModelGUI", "GasketModelGUI\GasketModelGUI.csproj", "{2B48A149-DD69-48F0-B352-704B4D2AFCD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{1FE25F72-FAAA-45A1-B5EB-7481269267EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{2B48A149-DD69-48F0-B352-704B4D2AFCD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B48A149-DD69-48F0-B352-704B4D2AFCD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B48A149-DD69-48F0-B352-704B4D2AFCD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FE25F72-FAAA-45A1-B5EB-7481269267EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FE25F72-FAAA-45A1-B5EB-7481269267EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FE25F72-FAAA-45A1-B5EB-7481269267EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FE25F72-FAAA-45A1-B5EB-7481269267EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
