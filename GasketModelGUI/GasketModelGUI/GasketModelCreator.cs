@@ -24,6 +24,7 @@ namespace GasketModelGUI
         /// </summary>
         private readonly InventorApi _api;
 
+        
         #endregion
 
         #region Methods
@@ -32,13 +33,12 @@ namespace GasketModelGUI
         /// Конструктор с входными параметрами модели
         /// </summary>
         /// <param name="gasketProperties">Параметры модели</param>
-        /// <param name="InventorApi">API</param>
-        /// <param name="_inventorApplication">Ссылка на приложение</param>
-        public GasketModelCreator(GasketProperties gasketProperties, InventorApi InventorApi)
+        /// <param name="inventorApi">API</param>
+        public GasketModelCreator(GasketProperties gasketProperties, InventorApi inventorApi)
         {
             _gasketProperties = gasketProperties;
-            _api = InventorApi;
-            InventorApplication = InventorApi.InventorApplication;
+            _api = inventorApi;
+            InventorApplication = inventorApi.InventorApplication;
         }
 
         /// <summary>
@@ -47,32 +47,68 @@ namespace GasketModelGUI
         public void Build(GasketProperties gasketProperties)
         {
             if (gasketProperties == null) throw new AccessingNullException();
-            // Шаги для прогрессбара
+
             const int stepCount = 4;
 
-            // Создаем прогрессбар
             ProgressBar progressBar = InventorApplication.CreateProgressBar(false, stepCount, "Построение инжекторной прокладки");
-            
+
             progressBar.Message = @"Построение инжекторной прокладки, пожалуйста подождите";
             progressBar.UpdateProgress();
 
             progressBar.Message = @"Создание основной модели инжекторной прокладки, пожалуйста подождите";
             progressBar.UpdateProgress();
-            // Функция строит основу инжекторной прокладки
             BuildModel();
-            
+
             progressBar.Message = @"Создание отверстий и вырезов инжекторной прокладки, пожалуйста подождите";
             progressBar.UpdateProgress();
-            // Функция создает вырезы в детали
             BuildCutouts();
-            BuildCircleCutouts();
 
             progressBar.Message = @"Настройка материалов, пожалуйста подождите";
             progressBar.UpdateProgress();
-            // Меняем материал
             _api.ChangeMaterial(@"Aluminum 6061-AHC");
 
-            //Закрываем прогрессбар
+            progressBar.Close();
+        }
+
+        /// <summary>
+        /// Функция создает круглые вырезы по краям детали
+        /// </summary>
+        public void CircleCutoutsBuilder(GasketProperties gasketProperties)
+        {
+            if (gasketProperties == null) throw new AccessingNullException();
+            const int stepCount = 1;
+            ProgressBar progressBar = InventorApplication.CreateProgressBar(false, stepCount, "Построение инжекторной прокладки");
+            progressBar.Message = @"Создание отверстий и вырезов инжекторной прокладки, пожалуйста подождите";
+            progressBar.UpdateProgress();
+            BuildCircleCutouts();
+            progressBar.Close();
+        }
+
+        /// <summary>
+        /// Функция создает прямоугольные вырезы по краям детали
+        /// </summary>
+        public void RectangleCutoutsBuilder(GasketProperties gasketProperties)
+        {
+            if(gasketProperties == null) throw new AccessingNullException();
+            const int stepCount = 1;
+            ProgressBar progressBar = InventorApplication.CreateProgressBar(false, stepCount, "Построение инжекторной прокладки");
+            progressBar.Message = @"Создание отверстий и вырезов инжекторной прокладки, пожалуйста подождите";
+            progressBar.UpdateProgress();
+            BuildRectangleCutouts();
+            progressBar.Close();
+        }
+
+        /// <summary>
+        /// Функция создает треугольные вырезы по краям детали
+        /// </summary>
+        public void TriangleCutoutsBuilder(GasketProperties gasketProperties)
+        {
+            if (gasketProperties == null) throw new AccessingNullException();
+            const int stepCount = 1;
+            ProgressBar progressBar = InventorApplication.CreateProgressBar(false, stepCount, "Построение инжекторной прокладки");
+            progressBar.Message = @"Создание отверстий и вырезов инжекторной прокладки, пожалуйста подождите";
+            progressBar.UpdateProgress();
+            BuildTriangleCutouts();
             progressBar.Close();
         }
 
@@ -101,6 +137,9 @@ namespace GasketModelGUI
             _api.DrawLine(beforeShear, gasketWidth/2);
             _api.CloseShape();
             _api.Extrude(gasketHeight);
+            _api.Extrude(gasketHeight);
+
+            _api.Fillet();
         }
 
         /// <summary>
@@ -117,7 +156,7 @@ namespace GasketModelGUI
             // Создание прямоугольного выреза на корме детали
             _api.MakeNewSketch(3, 0);
             _api.CutExtrudeRectangle(0.0, radiusStern, depthOfNotchInTheStern, -radiusStern, gasketHeight);
-            
+
             // Создание выреза на носу детали
             _api.MakeNewSketch(3, 0);
             _api.CutExtrudeCircle(fromStartToCenterNose, 0.0, radiusProw * 2, gasketHeight);
@@ -128,7 +167,7 @@ namespace GasketModelGUI
         }
 
         /// <summary>
-        /// Функция создает вырезы в детали
+        /// Функция создает круглые вырезы по краям детали
         /// </summary>
         private void BuildCircleCutouts()
         {
@@ -144,7 +183,68 @@ namespace GasketModelGUI
             _api.CutExtrudeCircle(centerToTheEdge + betweenCentRad, gasketWidth / 2 - centerToTheEdge, radiusEdges * 2, gasketHeight);
             _api.CutExtrudeCircle(centerToTheEdge, -gasketWidth / 2 + centerToTheEdge, radiusEdges * 2, gasketHeight);
             _api.CutExtrudeCircle(centerToTheEdge + betweenCentRad, -gasketWidth / 2 + centerToTheEdge, radiusEdges * 2, gasketHeight);
-        #endregion
         }
+
+        /// <summary>
+        /// Функция создает квадратные вырезы по краям детали
+        /// </summary>
+        private void BuildRectangleCutouts()
+        {
+            var radiusEdges = _gasketProperties.GetParameter(GasketPropertiesEnum.RadiusEdges).Value;
+            var betweenCentRad = _gasketProperties.GetParameter(GasketPropertiesEnum.BetweenCentRad).Value;
+            var gasketWidth = _gasketProperties.GetParameter(GasketPropertiesEnum.GasketWidth).Value;
+            var gasketHeight = _gasketProperties.GetParameter(GasketPropertiesEnum.GasketHeight).Value;
+
+            // Создание вырезов по краям детали
+            _api.MakeNewSketch(3, 0);
+            _api.CutExtrudeRectangle(radiusEdges, gasketWidth / 2 - radiusEdges,
+                radiusEdges * 2, gasketWidth / 2 - radiusEdges * 2, gasketHeight);
+            _api.CutExtrudeRectangle(radiusEdges + betweenCentRad, gasketWidth / 2 - radiusEdges,
+                radiusEdges * 2 + betweenCentRad, gasketWidth / 2 - radiusEdges * 2, gasketHeight);
+            _api.CutExtrudeRectangle(radiusEdges, -gasketWidth / 2 + radiusEdges, 
+                radiusEdges * 2, -gasketWidth / 2 + radiusEdges * 2, gasketHeight);
+            _api.CutExtrudeRectangle(radiusEdges + betweenCentRad, -gasketWidth / 2 + radiusEdges,
+                radiusEdges * 2 + betweenCentRad, -gasketWidth / 2 + radiusEdges * 2, gasketHeight);
+        }
+
+        /// <summary>
+        /// Функция создает треугольные вырезы по краям детали
+        /// </summary>
+        private void BuildTriangleCutouts()
+        {
+            var radiusEdges = _gasketProperties.GetParameter(GasketPropertiesEnum.RadiusEdges).Value;
+            var centerToTheEdge = _gasketProperties.GetParameter(GasketPropertiesEnum.CenterToTheEdge).Value;
+            var betweenCentRad = _gasketProperties.GetParameter(GasketPropertiesEnum.BetweenCentRad).Value;
+            var gasketWidth = _gasketProperties.GetParameter(GasketPropertiesEnum.GasketWidth).Value;
+            var gasketHeight = _gasketProperties.GetParameter(GasketPropertiesEnum.GasketHeight).Value;
+
+            // Создание вырезов по краям детали
+            _api.MakeNewSketch(3, 0);
+            _api.DrawLine(centerToTheEdge / 2, gasketWidth / 2 - centerToTheEdge / 2, centerToTheEdge / 2 + radiusEdges, gasketWidth / 2 - centerToTheEdge / 2);
+            _api.DrawLine(centerToTheEdge / 2 + radiusEdges / 2, gasketWidth / 2 - (centerToTheEdge / 2 + radiusEdges));
+            _api.CloseShape();
+            _api.CutExtrude(gasketHeight);
+
+            _api.MakeNewSketch(3, 0);
+            _api.DrawLine(centerToTheEdge / 2 + betweenCentRad, gasketWidth / 2 - centerToTheEdge / 2,
+                centerToTheEdge / 2 + radiusEdges + betweenCentRad, gasketWidth / 2 - centerToTheEdge / 2);
+            _api.DrawLine(centerToTheEdge / 2 + radiusEdges / 2 + betweenCentRad, gasketWidth / 2 - (centerToTheEdge / 2 + radiusEdges));
+            _api.CloseShape();
+            _api.CutExtrude(gasketHeight);
+
+            _api.MakeNewSketch(3, 0);
+            _api.DrawLine(centerToTheEdge / 2 + betweenCentRad, -gasketWidth / 2 + centerToTheEdge / 2,
+                centerToTheEdge / 2 + radiusEdges + betweenCentRad, -gasketWidth / 2 + centerToTheEdge / 2);
+            _api.DrawLine(centerToTheEdge / 2 + radiusEdges / 2 + betweenCentRad, -gasketWidth / 2 + (centerToTheEdge / 2 + radiusEdges));
+            _api.CloseShape();
+            _api.CutExtrude(gasketHeight);
+
+            _api.MakeNewSketch(3, 0);
+            _api.DrawLine(centerToTheEdge / 2, -gasketWidth / 2 + centerToTheEdge / 2, centerToTheEdge / 2 + radiusEdges, -gasketWidth / 2 + centerToTheEdge / 2);
+            _api.DrawLine(centerToTheEdge / 2 + radiusEdges / 2, -gasketWidth / 2 + (centerToTheEdge / 2 + radiusEdges));
+            _api.CloseShape();
+            _api.CutExtrude(gasketHeight);
+        }
+        #endregion
     }
 }
