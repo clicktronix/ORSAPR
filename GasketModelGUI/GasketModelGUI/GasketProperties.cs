@@ -15,7 +15,7 @@ namespace GasketModelGUI
 
         #region Methods
 
-        /// <summary>
+        /// <summary> 
         /// Конструктор по умолчанию
         /// </summary>
         public GasketProperties()
@@ -28,7 +28,7 @@ namespace GasketModelGUI
                 {GasketPropertiesEnum.AbaloneAround, new GasketParameterValue(13.0, 12.0, 20.0)},
                 {GasketPropertiesEnum.CenterToTheEdge, new GasketParameterValue(10.0, 7.0, 12.0)},
                 {GasketPropertiesEnum.BeforeShear, new GasketParameterValue(40.0, 35.0, 50.0)},
-                {GasketPropertiesEnum.BetweenCentRad, new GasketParameterValue(20.0, 15.0, 35.0)},
+                {GasketPropertiesEnum.BetweenCentRad, new GasketParameterValue(20.0, 15.0, 30.0)},
                 {GasketPropertiesEnum.GasketWidth, new GasketParameterValue(60.0, 55.0, 80.0)},
                 {GasketPropertiesEnum.GasketHeight, new GasketParameterValue(10.0, 1.0, 25.0)},
                 {GasketPropertiesEnum.GasketLenght, new GasketParameterValue(92.0, 80.0, 110.0)},
