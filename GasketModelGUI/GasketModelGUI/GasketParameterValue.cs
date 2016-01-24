@@ -40,7 +40,7 @@ namespace GasketModelGUI
             get { return _value; }
             set
             {
-                if (Equals(_value, value))
+                if (Equals(_value, value) & (value>0))
                     return;
                 _value = value;
                 Validate();
@@ -92,6 +92,14 @@ namespace GasketModelGUI
             _min = min;
             _max = max;
             Validate();
+            if (value >= Min && value <= Max)
+            {
+                _value = value;
+            }
+            else
+            {
+                throw new ValueException();
+            }
         }
 
         /// <summary>
