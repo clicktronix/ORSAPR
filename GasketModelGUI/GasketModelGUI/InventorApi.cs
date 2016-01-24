@@ -71,6 +71,16 @@ namespace GasketModelGUI
                     MessageBox.Show(@"Не удалось запустить инвентор. Проверьте работоспособность Inventor 2016.");
                 }
             }
+            Initialization(InventorApplication);
+        }
+
+        /// <summary>
+        /// Метод инициализации документа сборки.
+        /// </summary>
+        /// <param name="InventorApplication">Ссылка на приложение</param>
+        public void Initialization(Application InventorApplication)
+        {
+            if (InventorApplication == null) throw new AccessingNullException();
 
             // В открытом приложении создаем метрическуюсборку
             _partDoc = (PartDocument)InventorApplication.Documents.Add
@@ -82,20 +92,30 @@ namespace GasketModelGUI
             _transGeometry = InventorApplication.TransientGeometry;
         }
 
-        public void Initialization(Application inputApplication)
+        /// <summary>
+        ///  Метод создает коллекцию срезов и выполняет скругление краев детали
+        /// </summary>
+        public void Fillet()
         {
-            if (inputApplication == null) throw new AccessingNullException();
-            // Получение ссылки на приложение.
-            InventorApplication = inputApplication;
-            
-            // В открытом приложении создаем метрическуюсборку
-            _partDoc = (PartDocument)InventorApplication.Documents.Add
-                (DocumentTypeEnum.kPartDocumentObject, InventorApplication.FileManager.GetTemplateFile
-                        (DocumentTypeEnum.kPartDocumentObject, SystemOfMeasureEnum.kMetricSystemOfMeasure));
-            // Ссылка на описание документа
-            _partDef = _partDoc.ComponentDefinition;
-            // Инициализация метода геометрии
-            _transGeometry = InventorApplication.TransientGeometry;
+            EdgeCollection headstockEdgeCollection1 = InventorApplication.TransientObjects.CreateEdgeCollection();
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].EndFaces[1].Edges[1]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].EndFaces[1].Edges[2]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].EndFaces[1].Edges[3]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].EndFaces[1].Edges[4]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].EndFaces[1].Edges[5]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].EndFaces[1].Edges[6]);
+
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].StartFaces[1].Edges[1]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].StartFaces[1].Edges[2]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].StartFaces[1].Edges[3]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].StartFaces[1].Edges[4]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].StartFaces[1].Edges[5]);
+            headstockEdgeCollection1.Add(_partDoc.ComponentDefinition.Features.ExtrudeFeatures[1].StartFaces[1].Edges[6]);
+
+            FilletDefinition headstockFilletDefinition1 = _partDoc.ComponentDefinition.Features.FilletFeatures.CreateFilletDefinition();
+            headstockFilletDefinition1.AddConstantRadiusEdgeSet(headstockEdgeCollection1, 0.1);
+
+            _partDoc.ComponentDefinition.Features.FilletFeatures.Add(headstockFilletDefinition1);
         }
 
         /// <summary>
@@ -136,7 +156,7 @@ namespace GasketModelGUI
             var cornerPointTwo = _transGeometry.CreatePoint2d(pointTwoX, pointTwoY);
             _currentSketch.SketchLines.AddAsTwoPointRectangle(cornerPointOne, cornerPointTwo);
         }
-
+        
         /// <summary>
         /// Рисует круг
         /// </summary>
@@ -157,10 +177,25 @@ namespace GasketModelGUI
         /// </summary>
         /// <param name="distance">Длинна выдавливания</param>
         /// <param name="extrudeDirection">Направление выдавливания</param>
-        public void Extrude(double distance, PartFeatureExtentDirectionEnum extrudeDirection = PartFeatureExtentDirectionEnum.kPositiveExtentDirection)
+        public void Extrude(double distance, PartFeatureExtentDirectionEnum extrudeDirection = 
+            PartFeatureExtentDirectionEnum.kPositiveExtentDirection)
         {
             var extrudeDef = _partDef.Features.ExtrudeFeatures.CreateExtrudeDefinition(_currentSketch.Profiles.AddForSolid(),
                 PartFeatureOperationEnum.kJoinOperation);
+            extrudeDef.SetDistanceExtent(distance / 10.0, extrudeDirection);
+            _partDef.Features.ExtrudeFeatures.Add(extrudeDef);
+        }
+
+        /// <summary>
+        /// Выдавливание отрицательное
+        /// </summary>
+        /// <param name="distance">Длинна выдавливания</param>
+        /// <param name="extrudeDirection">Направление выдавливания</param>
+        public void CutExtrude(double distance, PartFeatureExtentDirectionEnum extrudeDirection = 
+            PartFeatureExtentDirectionEnum.kPositiveExtentDirection)
+        {
+            var extrudeDef = _partDef.Features.ExtrudeFeatures.CreateExtrudeDefinition(_currentSketch.Profiles.AddForSolid(),
+                PartFeatureOperationEnum.kCutOperation);
             extrudeDef.SetDistanceExtent(distance / 10.0, extrudeDirection);
             _partDef.Features.ExtrudeFeatures.Add(extrudeDef);
         }
